@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build Your Claude Assistant</title>
+<style>
+  :root{
+    --bg:#0c0c10; --surface:#16161d; --surface2:#1d1d26; --border:#2a2a36;
+    --text:#f4f4f6; --muted:#a0a0ac; --accent:#534AB7; --accent2:#7F77DD; --ok:#1D9E75;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:760px;margin:0 auto;padding:48px 24px 80px;}
+  .eyebrow{color:var(--accent2);font-size:14px;font-weight:500;letter-spacing:.04em;margin:0 0 8px;}
+  h1{font-size:34px;font-weight:600;margin:0 0 12px;letter-spacing:-.01em;}
+  .lead{color:var(--muted);font-size:18px;margin:0 0 36px;}
+  .copybar{display:flex;flex-direction:column;align-items:center;gap:14px;
+    background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin:0 0 40px;}
+  .copybar p{margin:0;color:var(--muted);font-size:15px;}
+  button.copy{font-family:var(--sans);font-size:18px;font-weight:600;color:#fff;cursor:pointer;
+    background:var(--accent);border:none;border-radius:12px;padding:18px 34px;width:100%;max-width:420px;
+    transition:background .15s,transform .05s;display:flex;align-items:center;justify-content:center;gap:10px;}
+  button.copy:hover{background:var(--accent2);}
+  button.copy:active{transform:scale(.985);}
+  button.copy.done{background:var(--ok);}
+  .promptbox{position:relative;background:var(--surface2);border:1px solid var(--border);border-radius:12px;
+    padding:20px 22px;margin:0 0 44px;}
+  .promptbox pre{margin:0;white-space:pre-wrap;word-break:break-word;font-family:var(--mono);
+    font-size:13px;line-height:1.55;color:#d7d7e0;max-height:260px;overflow:auto;}
+  .promptlabel{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 12px;}
+  h2{font-size:22px;font-weight:600;margin:0 0 22px;}
+  .steps{list-style:none;margin:0 0 44px;padding:0;display:flex;flex-direction:column;gap:14px;}
+  .step{display:flex;gap:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;}
+  .num{flex:none;width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;
+    font-weight:600;display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .step h3{margin:0 0 4px;font-size:17px;font-weight:600;}
+  .step p{margin:0;color:var(--muted);font-size:15px;}
+  .foot{border-top:1px solid var(--border);padding-top:24px;color:var(--muted);font-size:14px;}
+  .foot a{color:var(--accent2);}
+  .tip{font-size:14px;color:var(--muted);margin:0 0 6px;}
+  .tip b{color:var(--text);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">OxBlue · AI Assistant</p>
+  <h1>Build your own Claude assistant</h1>
+  <p class="lead">Copy the prompt, paste it into Cowork, and answer a few simple questions. Claude takes care of the rest.</p>
+
+  <div class="copybar">
+    <button class="copy" id="copyBtn" aria-label="Copy the setup prompt">
+      <span id="copyText">Copy the prompt</span>
+    </button>
+    <p id="copyHint">Then paste it into Cowork and hit enter</p>
+  </div>
+
+  <div class="promptbox">
+    <p class="promptlabel">The prompt</p>
+    <pre id="prompt">Please handle all the technical steps yourself and just ask me plain questions when you need answers. I would rather not run commands or edit files myself.
+
+I want you to build me a personal AI assistant using these two GitHub repos:
+
+1. Base framework: https://github.com/airtight-design/atd-bob-builder-kit
+2. Memory add-on: https://github.com/jozuna19/assistant-starter-kit
+
+Please do the whole setup for me, in this order:
+
+STEP 1 - Read both repos so you understand the system. Clone or read the Bob Builder Kit and the Brain Vault Add-On yourself.
+
+STEP 2 - Build my assistant using the Bob Builder Kit's full three-phase process, in order: first 01-discovery.md (interview me), then 02-architect.md (design my system from those answers), then 03-assembler.md (generate all the files). Walk me through each phase, asking a few simple questions at a time. I'll answer in plain language. Then generate all of my assistant's files (CLAUDE.md, SOUL.md, USER.md, AGENTS.md, SCHEMAS.md, MEMORY.md, TOOLS.md) for me.
+
+STEP 3 - Install the Brain Vault Add-On for me. Copy the brain folder into my workspace, rename the template files, run its setup.sh so the memory hook is wired, and add the brain line to my CLAUDE.md. Do all of this yourself.
+
+STEP 4 - Tell me when it's done and have me restart so the memory turns on. Then show me 2 or 3 simple things I can say to test it.
+
+Important:
+- Ask me to name my assistant and name my framework first (the default framework name is "the Matrix" if I don't have one).
+- Do every technical step for me. I only answer questions.
+- Never put any passwords or keys in files. Leave those marked [configure].</pre>
+  </div>
+
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li class="step"><div class="num">1</div><div><h3>Open Cowork</h3><p>Start a new Cowork session. That becomes your assistant's home.</p></div></li>
+    <li class="step"><div class="num">2</div><div><h3>Paste the prompt</h3><p>Hit the copy button above, paste it into Cowork, and press enter.</p></div></li>
+    <li class="step"><div class="num">3</div><div><h3>Answer the questions</h3><p>Claude interviews you in plain language. Pick a name for your assistant and answer honestly. When it asks to run a step, say yes.</p></div></li>
+    <li class="step"><div class="num">4</div><div><h3>Restart and use it</h3><p>Claude finishes the setup and tells you to restart. Your assistant is now live and remembers you across sessions.</p></div></li>
+  </ol>
+
+  <div class="foot">
+    <p class="tip"><b>Takes about 30 minutes.</b> The first week feels rough, correct it as it learns, and it gets sharper fast.</p>
+    <p class="tip"><b>Never put passwords or keys in any file.</b></p>
+    <p>Stuck? Email <a href="mailto:bob@airtightdesign.com">bob@airtightdesign.com</a>, the team that built the framework.</p>
+  </div>
+</div>
+
+<script>
+  var btn=document.getElementById('copyBtn');
+  var txt=document.getElementById('copyText');
+  var hint=document.getElementById('copyHint');
+  var promptEl=document.getElementById('prompt');
+  btn.addEventListener('click',function(){
+    var text=promptEl.innerText;
+    function done(){btn.classList.add('done');txt.textContent='Copied. Now paste it into Cowork';
+      hint.textContent='Open Cowork in an empty folder, paste, and press enter';
+      setTimeout(function(){btn.classList.remove('done');txt.textContent='Copy the prompt';
+        hint.textContent='Then paste it into Cowork and hit enter';},4000);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(function(){fallback(text);done();});
+    }else{fallback(text);done();}
+  });
+  function fallback(text){var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);
+    ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);}
+</script>
+</body>
+</html>
